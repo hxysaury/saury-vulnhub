@@ -1,4 +1,4 @@
-# ECShop 2.x/3.x SQL注入/远程代码执行
+# ECShop 4.x `collection_list` SQL injection
 
 | 说明     | 内容 |
 | -------- | ---- |
@@ -23,15 +23,13 @@ ECShop是一款B2C独立网店系统，适合企业及个人快速构建个性�
 
 ### 1.3、影响版本
 
-2.x
 
-3.x
 
 ### 1.4、漏洞复现
 
 #### 1、基础环境
 
-Path：Vulhub/ecshop/xianzhi-2017-02-82239600/ 
+Path：Vulhub/ecshop/collection_list-sqli/ 
 
 ---
 
@@ -54,6 +52,16 @@ sudo docker-compose up -d
 ![image-20231220153718717](./imgs/image-20231220153718717.png)
 
 ![image-20231220153401155](./imgs/image-20231220153401155.png)
+
+然后注册 一个账户
+
+点击我的收藏
+
+![image-20231220155656379](./imgs/image-20231220155656379.png)
+
+漏洞点：http://your-ip:8080/user.php?act=collection_list
+
+
 
 #### 2、漏洞扫描
 
