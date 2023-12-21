@@ -46,35 +46,29 @@ docker pull apache/rocketmq:4.9.1
 docker pull apacherocketmq/rocketmq-console:2.0.0
 ```
 
-**启动namesrv:**
 
-```bash
-sudo docker run -dit -p 9876:9876 -p 10909:10909 --name mqsrv -e "MAX_POSSIBLE_HEAP=100000000" apache/rocketmq:4.9.1 sh mqnamesrv /bin/bash
 
+启动manesrv
+
+```dockerfile
+docker run -dit -p 9876:9876 -p 10909:10909 --name mqsrv -e "MAX_POSSIBLE_HEAP=100000000" apache/rocketmq:4.9.1 sh mqnamesrv /bin/bash
 ```
 
-![image-20231216114619704](./imgs/image-20231216114619704.png)
+启动broker
 
-**mqsrv绑定网口IP写host文件**
-
-![image-20231216115446088](./imgs/image-20231216115446088.png)
-
-**启动broker服务**
-
-```bash
-sudo docker run -dit -p 10908:10908 -p 10911:10911 --name mqbroker --restart=always --link mqsrv:namesrv -e "NAMESRV_ADDR=namesrv:9876" -e "MAX_POSSIBLE_HEAP=200000000" apache/rocketmq:4.9.1 sh mqbroker -c /home/rocketmq/rocketmq-4.9.1/conf/broker.conf
-
+```php
+docker run -dit -p 10909:10909 -p 10911:10911 --name mqbroker --restart=always --link mqsrv:namesrv -e "NAMESRV_ADDR=namesrv:9876" -e "MAX_POSSIBLE_HEAP=200000000" apache/rocketmq:4.9.1 sh mqbroker -c /home/rocketmq/rocketmq-4.9.1/conf/broker.conf
 ```
 
-![image-20231216115356147](./imgs/image-20231216115356147.png)
+启动console
 
-**启用console**
-
-```bash
+```php
 docker run -dit --name mqconsole -p 8080:8080 -e "JAVA_OPTS=-Drocketmq.config.namesrvAddr=mqsrv:9876 -Drocketmq.config.isVIPChannel=false" apacherocketmq/rocketmq-console:2.0.0
 ```
 
-![image-20231216115556062](./imgs/image-20231216115556062.png)
+PS: 注意broker、console启动时会指定关联namesrv的地址
+
+> NameServer 节点关键端口 9876；Broker节点关键端口10911
 
 ---
 
@@ -94,7 +88,13 @@ POC：https://github.com/Serendipity-Lucky/CVE-2023-33246
 java -jar CVE-2023-33246.jar -ip "攻击机IP" -cmd "需要执行的命令"
 ```
 
+往/tmp目录下写入一个文件 内容是111
 
+![image-20231221141350031](./imgs/image-20231221141350031.png)
+
+查看是否利用成功
+
+![image-20231221141229547](./imgs/image-20231221141229547.png)
 
 
 
@@ -108,3 +108,6 @@ https://github.com/apache/rocketmq/releases/tag/rocketmq-all-5.1.2
 
 https://github.com/apache/rocketmq/releases/tag/rocketmq-all-4.9.7
 
+### 参考
+
+https://blog.csdn.net/jdhellfire/article/details/131009358
