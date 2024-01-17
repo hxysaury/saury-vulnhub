@@ -112,3 +112,45 @@ TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256_P256,TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SH
 
 
 # SSL/TLS 受诫礼(BAR-MITZVAH)攻击漏洞(CVE-2015-2808)
+
+# 支持不安全的传输协议TLS1.0 或1.1
+
+### :octopus:漏洞介绍
+
+  web服务器通过TLS  1.0支持加密，由于固有的安全问题，TLS 1.0已于2021年3月正式弃用。  
+
+TLS 1.0和TLS1.1协议使用了脆弱的加密算法，存在重大安全漏洞，容易受到降级攻击的严重影响
+
+### :octopus:漏洞版本
+
+### :octopus:漏洞验证
+
+https://myssl.com/
+
+![image-20240117202414958](imgs/image-20240117202414958.png)
+
+攻击者可能会利用这个问题进行中间人攻击，并解密受影响的服务和客户端之间的通信。
+
+### :octopus:修复建议
+
+启用对TLS 1.2或1.3的支持，并禁用对TLS 1.0和TLS 1.1的支持
+
+nginx修改配置文件：
+
+```bash
+ssl_protocols TLSv1.2 TLSv1.3;
+```
+
+表示启用TLSv1.2 TLSv1.3 禁用其他TLS协议，注意此配置只能配置在http块或者 default_server中才能生效，且其他server块都会读取default_server中的配置。
+
+重启nginx使配置生效
+
+```bash
+nginx  -s reload
+```
+
+### :octopus:参考资料
+
+- :panda_face:https://blog.csdn.net/LIARRR/article/details/130088336
+
+  
