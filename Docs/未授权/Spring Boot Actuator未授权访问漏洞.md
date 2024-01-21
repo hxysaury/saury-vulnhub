@@ -205,7 +205,14 @@ eureka.client.serviceUrl.defaultZone=http://10.1.1.135:2333/xstream
 
 ![img](imgs/v2-40c4c0aba2f4288fcd805683ef0ebfde_1440w.webp)
 
+##### heapdump泄露利用
 
+工具地址：https:*//github.com/wyzxxz/heapdump_tool*
+
+参考：
+
+- https://blog.csdn.net/weixin_44309905/article/details/127279561
+- https://zhuanlan.zhihu.com/p/602691208
 
 ### 1.4、修复建议
 
@@ -256,3 +263,7 @@ management.server.port=-1
 - https://www.cnblogs.com/junsec/p/12066305.html
 
 - https://www.freebuf.com/news/193509.html
+
+- https://zhuanlan.zhihu.com/p/602691208
+
+- https://blog.csdn.net/weixin_44309905/article/details/127279561
