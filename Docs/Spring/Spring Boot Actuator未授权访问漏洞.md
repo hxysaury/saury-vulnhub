@@ -207,12 +207,76 @@ eureka.client.serviceUrl.defaultZone=http://10.1.1.135:2333/xstream
 
 ##### heapdump泄露利用
 
-工具地址：https:*//github.com/wyzxxz/heapdump_tool*
+Spring Boot Actuator的堆转储功能如果没有适当的配置，可能是一个安全漏洞。它允许通过URL获取正在运行的JVM的堆转储，其中可能包含敏感信息。
 
-参考：
+访问`/heapdump`接口下载heapdump文件。
 
-- https://blog.csdn.net/weixin_44309905/article/details/127279561
-- https://zhuanlan.zhihu.com/p/602691208
+利用工具：https://github.com/wyzxxz/heapdump_tool
+
+利用环境地址：https://github.com/callicoder/spring-boot-actuator-demo
+
+下载demo代码
+
+```text
+git clone https://github.com/callicoder/spring-boot-actuator-demo.git
+```
+
+maven将项目代码构建成jar包。
+
+```text
+mvn package
+```
+
+启动Spring Boot应用程序
+
+```text
+java -jar target/actuator-demo-0.0.1-SNAPSHOT.jar
+```
+
+![image-20240121154119378](imgs/image-20240121154119378.png)
+
+访问`8080`端口
+
+
+
+![image-20240121154214661](imgs/image-20240121154214661.png)
+
+访问`http://10.9.75.6:8080/actuator/heapdump`下载文件
+
+```bash
+ D:\Software\Java\jdk1.8.0_281\bin\java.exe  -jar .\heapdump_tool.jar .\heapdump
+```
+
+> 选择1，获取全部内容
+>
+> 然后输入关键字
+>
+> 查询方式：
+>
+> 1. 关键词 例如 password
+> 2. 字符长度 len=10 获取长度为10的所有key或者value值
+> 3. 按顺序获取 num=1-100 获取顺序1-100的字符 获取url,file,ip geturl 获取所有字符串中的url getfile 获取所有字符串中的文件路径文件名 getip 获取所有字符串中的ip
+> 4. 关键词 例如 password
+> 5. 字符长度 len=10 获取长度为10的所有key或者value值
+> 6. 按顺序获取 num=1-100 获取顺序1-100的字符 获取url,file,ip geturl 获取所有字符串中的url getfile 获取所有字符串中的文件路径文件名 getip 获取所有字符串中的ip 默认不输出查询结果非key-value格式的数据，需要获取所有值，输入all=true，all=false取消显示所有值。
+
+获取密码
+
+![image-20240121155338186](imgs/image-20240121155338186.png)
+
+获取IP
+
+![image-20240121155459790](imgs/image-20240121155459790.png)
+
+获取url
+
+![image-20240121155522599](imgs/image-20240121155522599.png)
+
+获取文件路径
+
+- 此功能可获取到目标系统的依赖版本。
+
+![image-20240121155606648](imgs/image-20240121155606648.png)
 
 ### 1.4、修复建议
 
@@ -267,3 +331,5 @@ management.server.port=-1
 - https://zhuanlan.zhihu.com/p/602691208
 
 - https://blog.csdn.net/weixin_44309905/article/details/127279561
+
+  
